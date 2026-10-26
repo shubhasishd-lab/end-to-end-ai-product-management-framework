@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>End-to-End AI Product Management Framework - Interactive Flowchart</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--ink:#1d2433;--mute:#566074;--line:#c9cfdb;--accent:#1f4fd8;--accent2:#0b7a5a;--warn:#a65300;--loop:#7a2fb5;--focus:#ff9f0a}
+@media (prefers-color-scheme:dark){:root{--bg:#12161f;--card:#1b2230;--ink:#eef1f7;--mute:#a5afc2;--line:#37425a;--accent:#7da2ff;--accent2:#4fd1a1;--warn:#ffb457;--loop:#c79bff}}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+header{padding:16px;border-bottom:1px solid var(--line);background:var(--card)}
+h1{font-size:1.15rem;margin:0 0 4px}
+header p{margin:0;color:var(--mute);font-size:.9rem}
+nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{font:inherit;padding:8px 12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;cursor:pointer;min-height:40px}
+nav button[aria-current="page"]{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+main{max-width:980px;margin:0 auto;padding:16px}
+section[hidden]{display:none}
+h2{font-size:1.1rem;margin:0 0 8px}
+.hint{color:var(--mute);font-size:.9rem;margin:0 0 12px}
+.layer{border:2px solid var(--line);border-radius:12px;padding:10px;margin-bottom:6px;background:var(--card)}
+.layer h3{margin:0 0 6px;font-size:.95rem}
+.layer .q{color:var(--mute);font-size:.85rem;margin:0 0 8px}
+.studies{display:flex;flex-wrap:wrap;gap:8px}
+.node{flex:1 1 220px;text-align:left;font:inherit;border:2px solid var(--accent);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px;cursor:pointer;min-height:48px}
+.node:hover{background:var(--card)}
+.node small{display:block;color:var(--mute)}
+.node.ctx{border-style:dashed;border-color:var(--accent2)}
+.arrow{text-align:center;color:var(--mute);font-size:.85rem;margin:2px 0 6px}
+.badge{display:inline-block;font-size:.72rem;border:1px solid currentColor;border-radius:999px;padding:1px 8px;margin-right:4px}
+.b-core{color:var(--accent)}.b-ctx{color:var(--accent2)}.b-gate{color:var(--warn)}.b-loop{color:var(--loop)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.85rem;margin:8px 0}
+.loopbar{border:2px dotted var(--loop);border-radius:10px;padding:8px 10px;margin-top:10px;font-size:.9rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px}
+.panel h3{margin:0 0 4px}
+dl{margin:8px 0 0}
+dt{font-weight:700;margin-top:10px;font-size:.9rem}
+dd{margin:2px 0 0 0}
+dd ul{margin:2px 0 0;padding-left:20px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{font:inherit;font-size:.85rem;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:999px;padding:5px 12px;cursor:pointer;min-height:34px}
+.chip.out{border-color:var(--warn);color:var(--warn)}
+.chip.lp{border-color:var(--loop);color:var(--loop)}
+.btn{font:inherit;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;min-height:40px}
+.btn.sec{background:transparent;color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.opt{display:block;width:100%;text-align:left;font:inherit;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:10px;margin-top:8px;cursor:pointer;min-height:44px}
+.opt[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+.tablewrap{overflow-x:auto}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.85rem;overflow-x:auto}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chain .chip{border-radius:8px}
+.chain span.ar{color:var(--mute)}
+.status{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.85rem;opacity:0;transition:opacity .2s;pointer-events:none}
+.status.show{opacity:1}
+footer{max-width:980px;margin:0 auto;padding:8px 16px 28px;color:var(--mute);font-size:.8rem}
+</style>
+</head>
+<body>
+<header>
+<h1>End-to-End AI Product Management Framework</h1>
+<p>Interactive flowchart. It follows the same logic as the Master Summary Booklet. Not a one-way pipeline: use the feedback loops.</p>
+</header>
+<nav id="tabs" aria-label="Sections">
+<button data-view="overview">Overview</button>
+<button data-view="decide">Decision paths</button>
+<button data-view="loops">Feedback loops</button>
+<button data-view="trace">Traceability</button>
+<button data-view="start">Where do I start?</button>
+<button data-view="resources">Resources</button>
+</nav>
+<main id="main">
+
+<section id="v-overview" hidden aria-labelledby="h-overview">
+<h2 id="h-overview">Overview: five layers, seven study areas</h2>
+<p class="hint">Select any study area to open its details. The layers are an architectural view, not rigid phases.</p>
+<div class="legend">
+<span><span class="badge b-core">Core</span> solid outline: relevant to most products</span>
+<span><span class="badge b-ctx">Context-dependent</span> dashed outline: use when relevant (for example AI controls)</span>
+</div>
+<div id="layers"></div>
+<div class="loopbar"><span class="badge b-loop">Feedback</span> Evaluation, usability testing, experiments and production findings can reopen earlier layers. <button class="chip lp" data-go="loops">See all loops</button></div>
+</section>
+
+<section id="v-node" hidden aria-labelledby="h-node">
+<button class="chip" id="backBtn">&larr; Back to overview</button>
+<div class="panel" id="nodePanel" tabindex="-1"></div>
+</section>
+
+<section id="v-decide" hidden aria-labelledby="h-decide">
+<h2 id="h-decide">Decision paths</h2>
+<p class="hint">Each layer ends in a decision gate. Pick a gate to see the evidence it needs and where each outcome leads. Use a gate only when it reduces risk or clarifies accountability.</p>
+<div id="gateList" class="chips"></div>
+<div class="panel" id="gatePanel" aria-live="polite"><p>Select a gate above.</p></div>
+</section>
+
+<section id="v-loops" hidden aria-labelledby="h-loops">
+<h2 id="h-loops">Feedback loops</h2>
+<p class="hint">Select a production or evaluation finding to see what to reconsider.</p>
+<div id="loopList"></div>
+</section>
+
+<section id="v-trace" hidden aria-labelledby="h-trace">
+<h2 id="h-trace">Traceability chain</h2>
+<p class="hint">Problem to monitoring. Adapt detail to the work; not every feature needs every link. Select a link to read it.</p>
+<div class="chain" id="chain"></div>
+<div class="panel" id="tracePanel" aria-live="polite"><p>Select a link above.</p></div>
+<h3 style="margin-top:18px">Risk to safeguard to test (example pattern)</h3>
+<div class="tablewrap"><table>
+<tr><th>Step</th><th>Question</th></tr>
+<tr><td>Risk</td><td>What could go wrong, and for whom?</td></tr>
+<tr><td>Safeguard</td><td>What control prevents, limits or detects it, and who owns it?</td></tr>
+<tr><td>Test</td><td>Which scenario shows the safeguard works, and what result is acceptable?</td></tr>
+<tr><td>Release decision</td><td>Is the evidence enough for this release?</td></tr>
+<tr><td>Monitoring</td><td>Which production signal would show it failing?</td></tr>
+</table></div>
+</section>
+
+<section id="v-start" hidden aria-labelledby="h-start">
+<h2 id="h-start">Where do I start? (adapt the framework)</h2>
+<p class="hint">Answer three questions for a suggested level of rigor. This is a starting point, not a rule. Legal, regulatory, security and organisational obligations must also be checked.</p>
+<div id="wizard"></div>
+<div class="panel" id="wizResult" aria-live="polite"><p>Answer all three questions.</p></div>
+</section>
+
+<section id="v-resources" hidden aria-labelledby="h-res">
+<h2 id="h-res">Resources: templates and checklists</h2>
+<p class="hint">Short and simplifiable. Each says when to use it and when to skip it.</p>
+<div id="resList" class="chips"></div>
+<div class="panel" id="resPanel" aria-live="polite"><p>Select a resource above.</p></div>
+</section>
+
+</main>
+<footer>
+Known limitations: content follows the supplied documents; Studies 06 and 07 and the end of Document 3 were not received, so those parts are synthesised and should be reviewed. This file is self-contained and works offline. It was written to the same framework as the booklet.
+</footer>
+<div class="status" id="status" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+var NODES={
+s01:{layer:1,core:true,title:"Study 01: Discovery and Strategy",
+ question:"Are we addressing the right problem, for the right users, for a worthwhile reason?",
+ purpose:"Decide whether a meaningful problem exists and whether pursuing it is justified.",
+ inputs:["Stakeholder and user knowledge","Existing data and market context","Known constraints"],
+ activities:["Frame the problem","Plan and run research; judge evidence quality","Map current-state journeys and pain points","Assess opportunities (value, fit, feasibility, risk)","Check business viability and operating economics (build and running costs, sustainability), where relevant","Check data readiness: availability, quality, access, provenance, privacy, retention, governance, where relevant","Define the MVP and what it must validate"],
+ decision:"Proceed, investigate further, change direction, or stop.",
+ evidence:"Real participant research, external research and logged assumptions. AI-generated personas or simulated interviews are hypotheses only.",
+ outputs:["Problem statement","Research synthesis","Opportunity assessment","Vision and objectives","Assumption and risk register","MVP rationale"],
+ connections:[["s02","Objectives and scope feed requirements"],["s03","Is AI appropriate at all?"],["s07","Production findings reopen discovery"]],
+ risks:["Starting from a favoured solution","Treating assumptions as facts","Small or biased samples","Stakeholder preference mistaken for user evidence"],
+ resources:["assumptions","decision"]},
+s02:{layer:2,core:true,title:"Study 02: Requirements and Product Definition",
+ question:"What should the product achieve, and how will we judge it?",
+ purpose:"Turn understanding into clear scope, requirements and acceptance criteria.",
+ inputs:["Discovery outputs","Constraints and business rules","Dependencies"],
+ activities:["Define goals, scope and exclusions","Write functional and non-functional requirements","Write user stories and acceptance criteria","Manage the backlog and dependencies, including technical, security, integration and operational dependencies with owners","Maintain traceability"],
+ decision:"Is intended behaviour clear and testable enough to guide build and evaluation?",
+ evidence:"Requirements with observable behaviour and an assessment method.",
+ outputs:["PRD","Prioritised backlog","Acceptance criteria"],
+ connections:[["s01","Why does this requirement exist?"],["s03","AI-specific requirements"],["s05","How will it be tested?"]],
+ risks:["Untestable requirements","Only ideal-scenario criteria","Missing non-functional needs","PRD mistaken for proof of readiness"],
+ resources:["trace","assumptions"]},
+s03:{layer:3,core:false,title:"Study 03: AI Design and Responsible AI (when AI is involved)",
+ question:"What should the AI do, never do, and how are foreseeable risks managed?",
+ purpose:"Decide whether and how AI contributes, constrain its behaviour, and build testable safeguards.",
+ inputs:["Requirements","Risk context and affected users","Known model limitations"],
+ activities:["Compare AI with rules and human judgement","Define capability boundaries","Design context and memory only where needed, with data provenance, privacy, retention and governance defined","Design uncertainty and failure handling","Define safeguards and human oversight"],
+ decision:"Are capability, limits, safeguards and accountability fit for the intended use?",
+ evidence:"Safeguards tied to observable behaviour and tests. Keep intended behaviour separate from demonstrated capability.",
+ outputs:["Capability boundaries","AI behaviour and safeguard matrix","Escalation rules","Risk register"],
+ connections:[["s04","Show limits and uncertainty to users"],["s05","Test the safeguards"],["s07","Monitor safeguard failure signals"]],
+ risks:["Assuming consistent behaviour","Safeguards as aspirations","Oversight without a workable handoff","Ignoring privacy of context data"],
+ resources:["safeguards","assumptions","decision"]},
+s04:{layer:2,core:true,title:"Study 04: UX and Interaction Design",
+ question:"How do people use it, understand it and recover when it fails?",
+ purpose:"Translate requirements and AI behaviour into usable experiences, including failure paths.",
+ inputs:["Requirements","AI capability boundaries","User research"],
+ activities:["Map journeys and flows","Prototype and test usability","Design errors, ambiguity and recovery","Design human handoff where relevant","Check accessibility"],
+ decision:"Can users understand limits and recover from important failures?",
+ evidence:"Usability findings covering failure and escalation paths, not only the happy path.",
+ outputs:["Journeys and flows","Prototypes","Error and recovery paths"],
+ connections:[["s02","Usability reveals missing requirements"],["s03","Unsuitable AI behaviour shows up in use"],["s05","Failure paths become test scenarios"]],
+ risks:["Only the ideal journey designed","Hidden uncertainty","Hard-to-reach human help","Polish mistaken for effectiveness"],
+ resources:["evalscen","trace"]},
+s05:{layer:4,core:true,title:"Study 05: Evaluation and Product Metrics",
+ question:"What evidence says the product is ready for its intended use?",
+ purpose:"Produce evidence for improving, releasing and continuing use.",
+ inputs:["Requirements and acceptance criteria","Safeguards","Metric definitions and baselines"],
+ activities:["Design scenarios: normal, ambiguous, edge, unsupported, failure","Operationally define metrics","Run offline and human evaluation","Regression testing","Record limits of the test data"],
+ decision:"Are results acceptable for the intended use, given known limitations?",
+ evidence:"Results labelled as target, hypothesis, test result, production result or independently validated. A target is never a result.",
+ outputs:["Evaluation plan and results","Metrics dictionary","Regression plan"],
+ connections:[["s02","Failed tests can change requirements"],["s03","Failed safeguards need redesign"],["s06","Evidence feeds release decisions"]],
+ risks:["Easy metrics chosen over useful ones","Aggregates hide failures","Unrepresentative test set","Benchmarks treated as guarantees"],
+ resources:["metrics","evalscen","trace"]},
+s06:{layer:4,core:true,title:"Study 06: Experimentation, Delivery and Release",
+ question:"Is release justified, and is it controlled?",
+ purpose:"Test hypotheses, deliver in stages and decide on release by evidence and risk.",
+ inputs:["Evaluation results","Hypotheses","Operational readiness"],
+ activities:["Design experiments proportionate to scale and risk","Stage the rollout","Assess release readiness","Plan rollback and fallback","Plan adoption: training, workflow changes and ongoing support, where relevant","Confirm engineering, platform and operations handoffs","Communicate to stakeholders"],
+ decision:"Is the evidence sufficient for this release? Proceed, proceed with conditions, investigate, revise, pause, roll back or stop.",
+ evidence:"Experiment results with limits stated, readiness assessment, go/no-go record.",
+ outputs:["Experiment plan","Release-readiness checklist","Rollback plan"],
+ connections:[["s05","Where the evidence comes from"],["s07","Hand over to monitoring"],["s01","Results can change priorities"]],
+ risks:["Experiments with no decision attached","Method unsuited to traffic or risk","No rollback path","Checklist replaces judgement","Delivered but not adopted"],
+ resources:["experiment","release"]},
+s07:{layer:5,core:true,title:"Study 07: Monitoring and Continuous Improvement",
+ question:"Is it still delivering value, and what should change next?",
+ purpose:"Learn from production and improve, restrict or retire.",
+ inputs:["Monitoring signals","Feedback and incidents","Change requests"],
+ activities:["Monitor outcomes, quality and operations","Review incidents and root causes","Control changes and revalidate","Reprioritise the improvement backlog","Assign owners and decision authority for escalation, corrective action, restriction, rollback and retirement","Check adoption, support needs and ongoing operating cost","Decide on retirement"],
+ decision:"Continue, improve, restrict, roll back or retire?",
+ evidence:"Production metrics, incident records and user feedback, each with an owner and action rule.",
+ outputs:["Monitoring plan","Incident records","Improvement backlog"],
+ connections:[["s01","New needs found in use"],["s02","Requirements wrong or incomplete"],["s03","Safeguard failed"],["s05","Test set or metric misleading"]],
+ risks:["No owner or action rule","Tracking activity instead of outcomes","Incidents closed without updating tests","Changes shipped without revalidation","Nobody with authority to restrict, roll back or retire"],
+ resources:["monitor","improve"]}
+};
+var LAYERS=[
+ {n:1,t:"Layer 1: Product Intent and Strategic Direction",q:"Right problem, right users, worthwhile reason?",ids:["s01"]},
+ {n:2,t:"Layer 2: Product Definition and Experience",q:"What should it achieve and how do people use it?",ids:["s02","s04"]},
+ {n:3,t:"Layer 3: AI Capability, Behaviour and Responsibility",q:"What should the AI do, never do, and how are risks managed? (context-dependent)",ids:["s03"]},
+ {n:4,t:"Layer 4: Evidence, Evaluation and Controlled Delivery",q:"What evidence supports readiness for the intended use?",ids:["s05","s06"]},
+ {n:5,t:"Layer 5: Production Learning and Lifecycle",q:"Is it still delivering value; what changes next?",ids:["s07"]}
+];
+var GATES=[
+ {id:"g1",t:"Gate 1: Worth investing in?",layer:1,decision:"Is there enough justification to invest in defining and investigating a solution?",evidence:"Evidence of need, logged assumptions, strategic fit; viability and data readiness where relevant (estimates are not results).",acceptable:"Remaining uncertainty is acceptable for the next step or can be investigated.",
+  out:[["Proceed","Move to definition: Study 02.","s02"],["Investigate further","Run more research: Study 01.","s01"],["Change direction","Reframe the problem: Study 01.","s01"],["Stop","End the initiative and record why.",null]]},
+ {id:"g2",t:"Gate 2: Clear enough to build?",layer:2,decision:"Is intended behaviour clear and testable enough to guide implementation and evaluation?",evidence:"Acceptance criteria with an assessment method; failure paths designed.",acceptable:"Level of detail matches risk and the next decision.",
+  out:[["Proceed","Build and begin evaluation: Study 05.","s05"],["Revise","Clarify requirements: Study 02.","s02"],["Revisit design","Add missing failure paths: Study 04.","s04"],["Reconsider AI","If AI looks unsuitable: Study 03.","s03"]]},
+ {id:"g3",t:"Gate 3: AI fit for intended use? (if AI is involved)",layer:3,decision:"Are the capability, limits, safeguards and accountability arrangements appropriate?",evidence:"Boundaries defined, safeguards linked to tests, oversight workable.",acceptable:"Residual risk is understood, owned and proportionate.",
+  out:[["Proceed","Evaluate it: Study 05.","s05"],["Proceed with conditions","Add controls, then evaluate: Study 03.","s03"],["Narrow scope","Reduce what the AI handles: Study 02.","s02"],["Replace with rules or humans","Drop AI for this task: Study 02.","s02"]]},
+ {id:"g4",t:"Gate 4: Ready to release?",layer:4,decision:"Is the available evidence sufficient for the proposed release, given its risks and limitations?",evidence:"Evaluation results with limitations, experiment findings, readiness assessment, rollback plan; dependencies, adoption and support readiness where relevant.",acceptable:"Stated by risk level; a checklist supports but does not make the decision.",
+  out:[["Proceed","Staged launch, then monitor: Study 07.","s07"],["Proceed with conditions","Restrict scope or add monitoring: Study 06.","s06"],["Investigate further","More evaluation: Study 05.","s05"],["Redesign","Failed evaluation: Study 03 or 04.","s03"],["Pause or stop","Do not release.",null]]},
+ {id:"g5",t:"Gate 5: Continue, change or retire?",layer:5,decision:"Should the product continue unchanged, be improved, restricted, rolled back or retired?",evidence:"Monitoring data, incident reviews, user feedback, outcome measures, adoption and operating cost where relevant; a named owner with authority to act.",acceptable:"Value and risk remain acceptable; changes are revalidated.",
+  out:[["Continue","Keep monitoring: Study 07.","s07"],["Improve","Reprioritise: Study 01 or 02.","s01"],["Restrict or roll back","Use the rollback plan: Study 06.","s06"],["Retire","End the product and record lessons.",null]]}
+];
+var LOOPS=[
+ ["Failed evaluation","Redesign, narrow scope, add controls, test more, or decide not to release.",["s03","s04","s02"]],
+ ["Usability testing shows users stuck","Missing requirements or failure paths; possibly an unsuitable AI behaviour.",["s02","s04","s03"]],
+ ["Experiment result changes priorities","Update objectives and backlog; reopen discovery if needs differ from assumptions.",["s01","s02"]],
+ ["Production reveals a new user need","Return to discovery and opportunity assessment.",["s01"]],
+ ["Safeguard failed in production","Redesign safeguard, add tests, consider restricting or rolling back.",["s03","s05","s06"]],
+ ["Model, prompt, data or workflow changed","Re-evaluate and re-approve release in proportion to risk.",["s05","s06"]],
+ ["Metric proves misleading","Fix the metric definition and record the change; re-baseline.",["s05"]]
+];
+var CHAIN=[
+ ["Problem","What user or business problem is worth solving? (Study 01)"],
+ ["Outcome","What result shows value? Defined as measurable outcomes. (Studies 01, 02)"],
+ ["Requirement","What must the product do and under what constraints? (Study 02)"],
+ ["Expected behaviour","What should happen, observably, including edge and failure cases? (Studies 02, 03, 04)"],
+ ["Risk / Safeguard","What could go wrong, and what control addresses it? (Study 03)"],
+ ["Test","Which scenario checks it, with what expected result? (Study 05)"],
+ ["Evidence","What do the results show, and what are the limits? (Study 05)"],
+ ["Release / product decision","Proceed, condition, investigate, revise, pause, roll back, stop. (Study 06)"],
+ ["Monitoring","Which production signals show whether it keeps working? (Study 07)"]
+];
+var WIZ=[
+ {q:"Is AI involved?",o:[["No","none"],["Yes, in a supporting role","support"],["Yes, it makes or shapes consequential outputs","core"]]},
+ {q:"How serious is a failure for users or the business?",o:[["Minor and easily reversed","low"],["Moderate","mid"],["Significant or hard to reverse","high"]]},
+ {q:"How much evidence do you already have that the problem matters?",o:[["Strong","strong"],["Some","some"],["Little or none","none"]]}
+];
+var RES={
+ assumptions:{t:"Assumption and risk register",when:"Use from discovery onward. Simplify to a short list on small projects.",body:"ID | Assumption or risk (including viability, data, dependency or adoption, where relevant) | Evidence status (verified / observed / estimate / assumption) | Impact if wrong | How to test or mitigate | Owner | Review date"},
+ decision:{t:"Decision record",when:"Use for consequential or hard-to-reverse choices only.",body:"Decision:\nContext (why now):\nOptions considered:\nEvidence:\nAssumptions (unverified):\nRisks:\nTrade-offs accepted:\nCost, data and dependency implications (if relevant):\nDecision owner (and who can change or reverse it):\nRationale:\nReview trigger (what new evidence reopens this):"},
+ trace:{t:"Requirement-to-test traceability matrix",when:"Useful when requirements are many or risk is high. Link to existing docs rather than copying text.",body:"Req ID | Requirement (link) | Outcome it serves | Expected behaviour | Risk / safeguard | Test or scenario ID | Latest evidence (link) | Status | Decision"},
+ safeguards:{t:"AI behaviour and safeguard matrix",when:"Use only when AI is involved. Skip for non-AI products.",body:"Risk addressed | Trigger | Required system behaviour | User experience | Test method | Acceptable result | Fallback if it fails | Owner (and who can restrict or roll back) | Production signal of failure"},
+ evalscen:{t:"Evaluation scenario template",when:"Use for each important capability or journey. Qualitative rules are fine if explicit.",body:"Requirement:\nScenario (condition tested):\nCategory: normal / ambiguous / edge / unsupported / failure\nTest data source, quality and limitations:\nExpected result:\nMeasurement:\nThreshold or judgement rule:\nFailure response:\nDecision owner:\nRe-evaluation trigger:"},
+ metrics:{t:"Metrics dictionary",when:"Use for any metric that informs a decision. Keep short; skip vanity metrics.",body:"Name and purpose:\nPrecise meaning:\nCalculation (numerator / denominator):\nData source (and its quality, access and privacy constraints):\nMeasurement window:\nBaseline:\nProposed target (a target, not a result) and rationale:\nKnown limitations:\nRelated guardrails:\nOwner:\nDecision informed:"},
+ experiment:{t:"Experiment plan",when:"Use when a real decision depends on the answer. Skip if the method does not fit your traffic or risk.",body:"Hypothesis and rationale:\nPopulation or context:\nIntervention and comparison:\nPrimary outcome:\nGuardrail measures:\nMethod and duration:\nData and evaluation approach (data availability, access and privacy):\nLimitations:\nDecision criteria:\nFollow-up action:"},
+ release:{t:"Release-readiness checklist",when:"Use before consequential releases. A checklist supports the decision; it does not make it.",body:"[ ] Scope is clear\n[ ] Essential acceptance criteria satisfied\n[ ] AI behaviour evaluated under relevant conditions (if AI)\n[ ] Material risks and safeguards assessed\n[ ] Users can understand and recover from important failures\n[ ] Monitoring and incident response ready\n[ ] Human handoffs can really be completed\n[ ] Evidence is reliable enough for this release\n[ ] Ownership and escalation clear\n[ ] Can restrict, disable or roll back\n[ ] Where relevant: data, technical, security, integration and operational dependencies resolved and owned\n[ ] Where relevant: users can adopt it (training, workflow changes, support ready)\n[ ] Where relevant: running cost understood and sustainable\n[ ] Post-launch owners named, with authority to restrict, roll back or retire\nOutcome: proceed / with conditions / investigate / revise / pause / roll back / stop"},
+ monitor:{t:"Monitoring and incident-response checklist",when:"Use once live. Scale to risk.",body:"[ ] Outcome, quality and operational signals chosen, each with an owner\n[ ] Thresholds or review rules defined\n[ ] Incident detection and response owner named\n[ ] Rollback or restriction trigger defined\n[ ] User feedback route in place\n[ ] Incidents feed new test scenarios\n[ ] Changes to model, prompt, data or workflow trigger re-evaluation\n[ ] Owners and decision authority named for escalation, corrective action, restriction, rollback and retirement\n[ ] Where relevant: adoption, support and operating-cost signals reviewed"},
+ improve:{t:"Continuous-improvement prioritisation aid",when:"Use when feedback, incidents and ideas pile up.",body:"Item | Source (incident / feedback / metric) | User impact | Risk | Effort | Learning value | Owner / decision authority | Priority | Reopens which area (discovery / requirements / design / evaluation / release)"}
+};
+
+var views=["overview","node","decide","loops","trace","start","resources"];
+var current="overview";
+function $(id){return document.getElementById(id)}
+function el(tag,attrs,text){var e=document.createElement(tag);if(attrs){for(var k in attrs){if(k==="class")e.className=attrs[k];else e.setAttribute(k,attrs[k])}}if(text!==undefined)e.textContent=text;return e}
+function say(msg){var s=$("status");s.textContent=msg;s.classList.add("show");clearTimeout(say.t);say.t=setTimeout(function(){s.classList.remove("show")},1600)}
+
+function show(view,noFocus){
+ current=view;
+ views.forEach(function(v){$("v-"+v).hidden=(v!==view)});
+ var tabs=document.querySelectorAll("#tabs button");
+ for(var i=0;i<tabs.length;i++){
+  var active=tabs[i].getAttribute("data-view")===view||(view==="node"&&tabs[i].getAttribute("data-view")==="overview");
+  if(active)tabs[i].setAttribute("aria-current","page");else tabs[i].removeAttribute("aria-current");
+ }
+ window.scrollTo(0,0);
+ if(!noFocus){var h=document.querySelector("#v-"+view+" h2")||$("nodePanel");if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true})}}
+}
+
+function buildOverview(){
+ var box=$("layers");box.textContent="";
+ LAYERS.forEach(function(L,i){
+  var d=el("div",{class:"layer"});
+  d.appendChild(el("h3",null,L.t));
+  d.appendChild(el("p",{class:"q"},L.q));
+  var wrap=el("div",{class:"studies"});
+  L.ids.forEach(function(id){
+   var n=NODES[id];
+   var b=el("button",{class:"node"+(n.core?"":" ctx"),"data-node":id,"aria-label":n.title+". "+(n.core?"Core":"Context-dependent")+". Opens details."});
+   b.appendChild(el("span",{class:"badge "+(n.core?"b-core":"b-ctx")},n.core?"Core":"Context-dependent"));
+   b.appendChild(document.createTextNode(n.title));
+   var sm=el("small",null,n.question);b.appendChild(sm);
+   wrap.appendChild(b);
+  });
+  d.appendChild(wrap);
+  var g=GATES[i];
+  var gb=el("button",{class:"chip out","data-gate":g.id,style:"margin-top:8px"},"Decision gate: "+g.t);
+  d.appendChild(gb);
+  box.appendChild(d);
+  if(i<LAYERS.length-1)box.appendChild(el("div",{class:"arrow","aria-hidden":"true"},"\u2193 informs  |  \u2191 evidence can reopen"));
+ });
+}
+
+function list(items){var u=el("ul");items.forEach(function(x){u.appendChild(el("li",null,x))});return u}
+function openNode(id){
+ var n=NODES[id];var p=$("nodePanel");p.textContent="";
+ p.appendChild(el("h3",{id:"h-node"},n.title));
+ var meta=el("div");
+ meta.appendChild(el("span",{class:"badge "+(n.core?"b-core":"b-ctx")},n.core?"Core practice":"Context-dependent practice"));
+ meta.appendChild(el("span",{class:"badge b-core"},"Layer "+n.layer));
+ p.appendChild(meta);
+ var dl=el("dl");
+ function add(label,content){dl.appendChild(el("dt",null,label));var dd=el("dd");if(typeof content==="string")dd.textContent=content;else dd.appendChild(content);dl.appendChild(dd)}
+ add("Question",n.question);add("Purpose",n.purpose);
+ add("Inputs",list(n.inputs));add("Activities",list(n.activities));
+ add("Decision",n.decision);add("Evidence",n.evidence);add("Outputs",list(n.outputs));
+ var cc=el("div",{class:"chips"});
+ n.connections.forEach(function(c){var b=el("button",{class:"chip","data-node":c[0],"aria-label":"Go to "+NODES[c[0]].title+": "+c[1]},NODES[c[0]].title.split(":")[0]+": "+c[1]);cc.appendChild(b)});
+ add("Connections",cc);
+ add("Risks and failure modes",list(n.risks));
+ var rc=el("div",{class:"chips"});
+ n.resources.forEach(function(r){rc.appendChild(el("button",{class:"chip","data-res":r},RES[r].t))});
+ add("Resources",rc);
+ p.appendChild(dl);
+ var gate=GATES.filter(function(g){return g.layer===n.layer})[0];
+ var row=el("div",{class:"row"});
+ row.appendChild(el("button",{class:"btn","data-gate":gate.id},"Open this layer's decision gate"));
+ row.appendChild(el("button",{class:"btn sec","data-go":"loops"},"Feedback loops"));
+ p.appendChild(row);
+ show("node");
+}
+
+function buildGates(){
+ var box=$("gateList");box.textContent="";
+ GATES.forEach(function(g){box.appendChild(el("button",{class:"chip out","data-gate":g.id},g.t))});
+}
+function openGate(id){
+ var g=GATES.filter(function(x){return x.id===id})[0];
+ show("decide",true);
+ var p=$("gatePanel");p.textContent="";
+ p.appendChild(el("h3",null,g.t));
+ var dl=el("dl");
+ [["Decision",g.decision],["Evidence required",g.evidence],["Acceptable uncertainty",g.acceptable]].forEach(function(r){dl.appendChild(el("dt",null,r[0]));dl.appendChild(el("dd",null,r[1]))});
+ p.appendChild(dl);
+ p.appendChild(el("h4",null,"Possible outcomes"));
+ var chips=el("div",{class:"chips"});
+ g.out.forEach(function(o){
+  if(o[2]){chips.appendChild(el("button",{class:"chip out","data-node":o[2],"aria-label":o[0]+": "+o[1]},o[0]+" \u2192 "+o[1]))}
+  else{chips.appendChild(el("span",{class:"badge b-gate"},o[0]+": "+o[1]))}
+ });
+ p.appendChild(chips);
+ p.appendChild(el("p",{class:"hint"},"A gate states the decision, evidence, acceptable uncertainty, who is accountable and the possible outcomes. Owner: to be named by your team."));
+ var h=p.querySelector("h3");h.setAttribute("tabindex","-1");h.focus();
+}
+
+function buildLoops(){
+ var box=$("loopList");box.textContent="";
+ LOOPS.forEach(function(l){
+  var d=el("div",{class:"panel"});
+  d.appendChild(el("span",{class:"badge b-loop"},"Loop"));
+  d.appendChild(el("strong",null,l[0]));
+  d.appendChild(el("p",null,l[1]));
+  var c=el("div",{class:"chips"});
+  l[2].forEach(function(id){c.appendChild(el("button",{class:"chip lp","data-node":id,"aria-label":"Reconsider "+NODES[id].title},"Reconsider: "+NODES[id].title.split(":")[0]))});
+  d.appendChild(c);box.appendChild(d);
+ });
+}
+
+function buildChain(){
+ var box=$("chain");box.textContent="";
+ CHAIN.forEach(function(c,i){
+  box.appendChild(el("button",{class:"chip","data-chain":String(i),"aria-label":"Link "+(i+1)+": "+c[0]},(i+1)+". "+c[0]));
+  if(i<CHAIN.length-1)box.appendChild(el("span",{class:"ar","aria-hidden":"true"},"\u2192"));
+ });
+}
+function openChain(i){
+ var p=$("tracePanel");p.textContent="";
+ p.appendChild(el("h3",null,CHAIN[i][0]));p.appendChild(el("p",null,CHAIN[i][1]));
+ var row=el("div",{class:"row"});
+ if(i>0)row.appendChild(el("button",{class:"btn sec","data-chain":String(i-1)},"\u2190 Previous link"));
+ if(i<CHAIN.length-1)row.appendChild(el("button",{class:"btn sec","data-chain":String(i+1)},"Next link \u2192"));
+ p.appendChild(row);
+}
+
+var wizAns=[null,null,null];
+function buildWizard(){
+ var box=$("wizard");box.textContent="";
+ WIZ.forEach(function(w,qi){
+  var f=el("fieldset",{style:"border:1px solid var(--line);border-radius:10px;margin:0 0 10px;padding:10px"});
+  f.appendChild(el("legend",null,(qi+1)+". "+w.q));
+  w.o.forEach(function(o){
+   var b=el("button",{class:"opt","data-wq":String(qi),"data-wv":o[1],"aria-pressed":wizAns[qi]===o[1]?"true":"false"},o[0]);
+   f.appendChild(b);
+  });
+  box.appendChild(f);
+ });
+}
+function wizResult(){
+ var p=$("wizResult");p.textContent="";
+ if(wizAns.indexOf(null)>-1){p.appendChild(el("p",null,"Answer all three questions."));return}
+ var ai=wizAns[0],risk=wizAns[1],ev=wizAns[2];
+ var level=(risk==="high"||ai==="core")?"High rigor":(risk==="mid"||ai==="support")?"Medium rigor":"Light rigor";
+ p.appendChild(el("h3",null,"Suggested starting point: "+level));
+ var items=[];
+ if(ev!=="strong")items.push("Start in Study 01: gather evidence before committing; log assumptions.");
+ else items.push("Evidence looks strong: confirm it quickly, then move to Study 02.");
+ items.push("Study 02: write scope and acceptance criteria"+(level==="Light rigor"?" (lightweight)":" with testable behaviour")+".");
+ if(ai!=="none")items.push("Study 03: define AI capability boundaries"+(ai==="core"?", safeguards, human oversight and escalation (consequential outputs).":" and failure handling."));
+ else items.push("Skip AI-specific controls (Study 03); keep everything else.");
+ items.push("Study 04: design failure and recovery paths, not just the happy path.");
+ items.push("Study 05: "+(level==="High rigor"?"build an extensive scenario set, define metrics operationally, and use human evaluation.":level==="Medium rigor"?"define key scenarios and metrics.":"basic user testing and a few checks."));
+ items.push("Study 06: "+(level==="High rigor"?"stage the release with explicit readiness criteria and a rollback plan.":"simple readiness check and a way to undo."));
+ items.push("Study 07: "+(level==="High rigor"?"monitoring, incident response, and revalidation after material changes.":"a simple monitoring routine with an owner."));
+ p.appendChild(list(items));
+ p.appendChild(el("p",{class:"hint"},"Illustrative pattern only. Also check legal, regulatory, security and organisational obligations."));
+ var row=el("div",{class:"row"});
+ row.appendChild(el("button",{class:"btn","data-go":"overview"},"Go to overview"));
+ p.appendChild(row);
+}
+
+function buildRes(){
+ var box=$("resList");box.textContent="";
+ Object.keys(RES).forEach(function(k){box.appendChild(el("button",{class:"chip","data-res":k},RES[k].t))});
+}
+function openRes(k){
+ show("resources",true);
+ var r=RES[k];var p=$("resPanel");p.textContent="";
+ p.appendChild(el("h3",null,r.t));
+ p.appendChild(el("p",null,"When to use: "+r.when));
+ p.appendChild(el("pre",{id:"resText"},r.body));
+ var row=el("div",{class:"row"});
+ row.appendChild(el("button",{class:"btn","data-copy":k},"Copy template"));
+ p.appendChild(row);
+ var h=p.querySelector("h3");h.setAttribute("tabindex","-1");h.focus();
+}
+function copyText(k){
+ var t=RES[k].body;
+ function ok(){say("Copied")}
+ function fallback(){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){say("Copy not available; select the text manually")}document.body.removeChild(ta)}
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fallback)}else fallback();
+}
+
+document.addEventListener("click",function(e){
+ var t=e.target.closest("button");if(!t)return;
+ if(t.hasAttribute("data-view")){show(t.getAttribute("data-view"));return}
+ if(t.hasAttribute("data-go")){show(t.getAttribute("data-go"));return}
+ if(t.hasAttribute("data-node")){openNode(t.getAttribute("data-node"));return}
+ if(t.hasAttribute("data-gate")){openGate(t.getAttribute("data-gate"));return}
+ if(t.hasAttribute("data-chain")){openChain(parseInt(t.getAttribute("data-chain"),10));return}
+ if(t.hasAttribute("data-res")){openRes(t.getAttribute("data-res"));return}
+ if(t.hasAttribute("data-copy")){copyText(t.getAttribute("data-copy"));return}
+ if(t.hasAttribute("data-wq")){
+  var qi=parseInt(t.getAttribute("data-wq"),10),wv=t.getAttribute("data-wv");wizAns[qi]=wv;buildWizard();wizResult();
+  var again=document.querySelector('[data-wq="'+qi+'"][data-wv="'+wv+'"]');if(again)again.focus();return}
+ if(t.id==="backBtn"){show("overview");return}
+});
+
+buildOverview();buildGates();buildLoops();buildChain();buildWizard();buildRes();
+show("overview",true);
+})();
+</script>
+</body>
+</html>
